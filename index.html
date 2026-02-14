@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VISION TV PREMIUM | 2026-2027</title>
+    <style>
+        :root {
+            --accent: #00f2ff;
+            --accent-dark: #0066ff;
+            --bg: #050505;
+            --card: #121212;
+            --text: #ffffff;
+            --text-dim: #a0a0a0;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* --- Header & Glassmorphism --- */
+        header {
+            position: fixed;
+            top: 0; width: 100%; z-index: 1000;
+            padding: 20px 5%;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(20px);
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--glass);
+        }
+
+        .brand { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .brand span { color: var(--accent); }
+        
+        .live-indicator {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--glass); padding: 5px 15px; border-radius: 50px; border: 1px solid var(--glass);
+        }
+
+        .dot { width: 8px; height: 8px; background: #ff4b2b; border-radius: 50%; box-shadow: 0 0 10px #ff4b2b; animation: pulse 1.5s infinite; }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 70vh; position: relative; display: flex; align-items: center; padding: 0 5%;
+            background: linear-gradient(to right, #050505 20%, transparent 100%);
+        }
+
+        .hero-img {
+            position: absolute; top: 0; right: 0; width: 70%; height: 100%;
+            object-fit: cover; z-index: -1; mask-image: linear-gradient(to left, black, transparent);
+        }
+
+        .hero-content { max-width: 600px; }
+        .hero-tag { color: var(--accent); font-weight: 700; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 10px; }
+        .hero-title { font-size: 4rem; margin-bottom: 15px; line-height: 1; }
+        .hero-desc { color: var(--text-dim); margin-bottom: 25px; font-size: 1.1rem; }
+
+        /* --- Filters --- */
+        .controls {
+            padding: 40px 5% 20px;
+            display: flex; gap: 15px; flex-wrap: wrap;
+            position: sticky; top: 80px; z-index: 900;
+            background: var(--bg);
+        }
+
+        .filter-btn {
+            background: var(--glass); border: 1px solid var(--glass); color: white;
+            padding: 10px 25px; border-radius: 8px; cursor: pointer; transition: 0.3s;
+            font-weight: 600;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--accent); color: black; border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+
+        /* --- Grid --- */
+        .program-grid {
+            display: grid; padding: 20px 5% 100px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px;
+        }
+
+        .card {
+            background: var(--card); border-radius: 20px; overflow: hidden;
+            transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 1px solid transparent; position: relative;
+        }
+
+        .card:hover { transform: scale(1.02); border-color: var(--accent); }
+
+        .card-img-container { position: relative; height: 180px; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .card:hover .card-img { transform: scale(1.1); filter: brightness(1.2); }
+
+        .card-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+
+        .card-info { padding: 20px; }
+        .card-time { font-weight: 700; color: var(--accent); font-size: 0.9rem; margin-bottom: 5px; }
+        .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+
+        .progress-mini {
+            width: 100%; height: 4px; background: #333; border-radius: 2px; margin-top: 15px; overflow: hidden;
+            display: none;
+        }
+        .progress-inner { height: 100%; background: var(--accent); width: 0%; }
+
+        /* --- Special Classes --- */
+        .card.active { border-color: var(--accent); box-shadow: 0 0 30px rgba(0, 242, 255, 0.1); }
+        .card.active .progress-mini { display: block; }
+        .card.past { opacity: 0.4; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .hero { height: 50vh; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">VISION<span>TV</span></div>
+    <div class="live-indicator">
+        <div class="dot"></div>
+        <div id="real-clock">00:00:00</div>
+    </div>
+</header>
+
+<section class="hero" id="hero-section">
+    <img src="https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&q=80&w=1200" class="hero-img" id="hero-img">
+    <div class="hero-content">
+        <div class="hero-tag">En ce moment</div>
+        <h1 class="hero-title" id="hero-title">Chargement...</h1>
+        <p class="hero-desc" id="hero-desc">Découvrez votre grille de programmes optimisée.</p>
+    </div>
+</section>
+
+<div class="controls">
+    <button class="filter-btn active" onclick="filter('all')">Tous</button>
+    <button class="filter-btn" onclick="filter('matin')">Matin</button>
+    <button class="filter-btn" onclick="filter('midi')">Après-midi</button>
+    <button class="filter-btn" onclick="filter('soir')">Soirée</button>
+</div>
+
+<div class="program-grid" id="main-grid"></div>
+
+<script>
+    // Données structurées basées sur le PDF [cite: 1-31]
+    const data = [
+        { id: 1, title: "Tfoo", start: "05:10", end: "07:30", cat: "matin", img: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=600" },
+        { id: 2, title: "La Matinale", start: "07:30", end: "10:00", cat: "matin", img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=600" },
+        { id: 3, title: "Blind Test", start: "10:05", end: "11:55", cat: "matin", img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=600" },
+        { id: 4, title: "12 Coups de midi", start: "11:55", end: "12:55", cat: "midi", img: "https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?q=80&w=600" },
+        { id: 5, title: "Le 13h", start: "13:00", end: "13:45", cat: "midi", img: "https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=600" },
+        { id: 6, title: "Demain nous appartient", start: "13:50", end: "14:50", cat: "midi", img: "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=600" },
+        { id: 7, title: "Juste Prix", start: "14:55", end: "16:00", cat: "midi", img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=600" },
+        { id: 8, title: "Star Académie", start: "16:00", end: "17:30", cat: "midi", img: "https://images.unsplash.com/photo-1514525253344-99a4299945b6?q=80&w=600" },
+        { id: 9, title: "Actumembre", start: "17:35", end: "18:20", cat: "soir", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600" },
+        { id: 10, title: "N'oubliez pas les paroles", start: "18:20", end: "19:45", cat: "soir", img: "https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=600" },
+        { id: 11, title: "Le 20h", start: "19:55", end: "20:45", cat: "soir", img: "https://images.unsplash.com/photo-1585829365294-1185012574e4?q=80&w=600" },
+        { id: 12, title: "Programme du soir", start: "21:00", end: "05:00", cat: "soir", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=600" }
+    ];
+
+    function toMinutes(time) {
+        const [h, m] = time.split(':').map(Number);
+        return h * 60 + m;
+    }
+
+    function render(filterCat = 'all') {
+        const grid = document.getElementById('main-grid');
+        grid.innerHTML = '';
+        const now = new Date();
+        const currentMin = now.getHours() * 60 + now.getMinutes();
+
+        data.forEach(prog => {
+            if (filterCat !== 'all' && prog.cat !== filterCat) return;
+
+            const start = toMinutes(prog.start);
+            let end = toMinutes(prog.end);
+            if (end < start) end += 1440; // Nuit
+
+            const isActive = currentMin >= start && currentMin < end;
+            const isPast = currentMin >= end;
+            const progress = isActive ? ((currentMin - start) / (end - start)) * 100 : 0;
+
+            if (isActive) {
+                document.getElementById('hero-title').innerText = prog.title;
+                document.getElementById('hero-img').src = prog.img;
+                document.getElementById('hero-desc').innerText = `En direct de ${prog.start} à ${prog.end}. Ne manquez rien !`;
+            }
+
+            const card = document.createElement('div');
+            card.className = `card ${isActive ? 'active' : ''} ${isPast ? 'past' : ''}`;
+            card.innerHTML = `
+                <div class="card-img-container">
+                    <img src="${prog.img}" class="card-img">
+                    <div class="card-overlay">
+                        ${isActive ? '<span style="background:red; padding:3px 8px; font-size:0.7rem; border-radius:3px; font-weight:800">DIRECT</span>' : ''}
+                    </div>
+                </div>
+                <div class="card-info">
+                    <div class="card-time">${prog.start} — ${prog.end}</div>
+                    <div class="card-title">${prog.title}</div>
+                    <div class="progress-mini"><div class="progress-inner" style="width:${progress}%"></div></div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function filter(cat) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        render(cat);
+    }
+
+    // Horloge temps réel
+    setInterval(() => {
+        const d = new Date();
+        document.getElementById('real-clock').innerText = d.toLocaleTimeString('fr-FR');
+    }, 1000);
+
+    // Refresh auto toutes les minutes
+    setInterval(render, 60000);
+
+    // Premier chargement
+    render();
+</script>
+
+</body>
+</html>
